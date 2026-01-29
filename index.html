@@ -2,164 +2,201 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>STV NIGHTS - JOY EDITION</title>
 <style>
-  /* Твой крутой стиль */
-  body { background: #000; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: monospace; overflow: hidden; user-select: none; }
+  body { background: #000; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; color: white; font-family: monospace; overflow: hidden; user-select: none; touch-action: manipulation; }
   #game-window { width: 800px; height: 450px; position: relative; background: #000; border: 2px solid #333; overflow: hidden; }
-  #dark-overlay { position: absolute; inset: 0; background: black; opacity: 0; pointer-events: none; z-index: 9999; transition: opacity 2s; }
-  #power-out-overlay { position: absolute; inset: 0; background: rgba(0, 0, 50, 0.8); z-index: 18000; display: none; pointer-events: none; }
-  .screen { position: absolute; inset: 0; display: flex; z-index: 10; }
+  
+  .screen { position: absolute; inset: 0; display: flex; z-index: 100; }
   .hidden { display: none !important; }
+  
+  /* МЕНЮ */
   #main-menu { background: black; z-index: 1000; flex-direction: column; }
-  .menu-content { width: 50%; padding: 40px; }
+  .menu-content { width: 50%; padding: 40px; z-index: 1100; }
   .title-text { font-size: 50px; line-height: 0.9; margin-bottom: 30px; color: #f00; text-shadow: 0 0 10px red; }
-  .menu-btn { font-size: 40px; cursor: pointer; margin-bottom: 15px; display: block; border:none; background:none; color:white; text-align:left; font-family:inherit; }
+  .menu-btn { font-size: 40px; cursor: pointer; margin-bottom: 15px; display: block; border:none; background:none; color:white; text-align:left; font-family:inherit; pointer-events: auto !important; }
   .menu-btn:hover { color: #f00; }
-  .freddy-bg { position: absolute; right: 0; width: 50%; height: 100%; background: url('https://i.imgur.com/8QpYhPj.png') center/cover; filter: grayscale(1) contrast(200%); z-index: -1; }
-  #extra-menu { background: black; z-index: 5000; flex-direction: column; padding: 20px; align-items: center; display: none; }
-  .extra-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .close-extra { color: white; cursor: pointer; font-size: 20px; border: 1px solid white; padding: 5px 10px; }
-  .night-grid { background: white; color: black; padding: 20px; width: 90%; border-radius: 5px; }
-  .grid-row { display: flex; justify-content: space-around; margin: 10px 0; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-  .night-slot { cursor: pointer; padding: 5px; font-weight: bold; }
-  .night-slot:hover { color: red; }
-  #error-popup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 150px; background: white; z-index: 6000; display: none; border: 4px solid #333; padding: 20px; color: red; text-align: center; font-weight: bold; }
-  #mendo-scare { position: absolute; inset: 0; z-index: 15000; display: none; pointer-events: none; }
-  .mendo-jump { position: absolute; left: 50%; bottom: -200px; transform: translateX(-50%); width: 600px; display: flex; justify-content: space-around; animation: mendoFly 0.6s forwards; }
-  @keyframes mendoFly { 0% { bottom: -200px; opacity: 1; scale: 0.5; } 50% { bottom: 100px; opacity: 1; scale: 1.5; } 100% { bottom: 200px; opacity: 0; scale: 2.5; } }
-  #hallucination { position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 8000; display: none; pointer-events: none; overflow: hidden; }
-  .joy-unit { position: absolute; font-weight: bold; color: white; animation: shake 0.05s infinite; text-shadow: 0 0 10px white; }
-  @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -1px); } }
-  #win-screen { background: black; z-index: 20000; display: none; justify-content: center; align-items: center; flex-direction: column; }
-  .eight-bit-text { font-size: 80px; font-weight: bold; }
+  .freddy-bg { position: absolute; right: 0; width: 50%; height: 100%; background: url('https://i.imgur.com/8QpYhPj.png') center/cover; filter: grayscale(1) contrast(200%); z-index: 1050; }
+
+  /* ОФИС */
   .room { background: #1a1a1a; background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://www.transparenttextures.com/patterns/dark-matter.png'), repeating-linear-gradient(90deg, #222 0, #222 80px, #1a1a1a 81px); }
+  
+  /* ПЫЛЬ */
   .dust-container { position: absolute; inset: 0; pointer-events: none; z-index: 100; opacity: 0.3; }
   .dust { position: absolute; background: white; border-radius: 50%; opacity: 0.2; animation: float 10s infinite linear; }
   @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(-30px, 60px); } }
+
+  /* ЛАМПОЧКА */
   .lamp-fixture { position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 200; pointer-events: none; }
+  .chain { width: 4px; height: 50px; background: #333; margin: 0 auto; background-image: repeating-linear-gradient(0deg, #111, #111 5px, #444 7px); }
   .bulb { width: 40px; height: 40px; background: #fff; border-radius: 50%; box-shadow: 0 0 30px #fff; animation: flicker 0.15s infinite; }
   @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+  /* ГАЛЛЮЦИНАЦИИ "РАДОСТЬ" */
+  #hallucination { position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 8000; display: none; pointer-events: none; }
+  .joy-unit { position: absolute; font-weight: bold; color: white; animation: shake 0.05s infinite; text-shadow: 0 0 10px white; font-size: 30px; }
+  @keyframes shake { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-2px, -2px); } 100% { transform: translate(2px, -2px); } }
+
+  .game-ui { position: absolute; top: 10px; width: 100%; padding: 0 20px; z-index: 9100; pointer-events: none; }
+  .side-controls { position: absolute; bottom: 50px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 150; }
+  .c-btn { width: 100px; height: 50px; background: #111; color: #555; border: 2px solid #222; cursor: pointer; font-weight: bold; pointer-events: auto; }
+  .c-btn.on-door { background: #600 !important; color: #f00 !important; }
+  .c-btn.on-light { background: #660 !important; color: #ff0 !important; }
+
   .gate { position: absolute; inset: 0; z-index: 10; transform: translateY(-100%); transition: transform 0.15s steps(5); pointer-events: none; background: repeating-linear-gradient(90deg, transparent, transparent 30px, #333 30px, #444 40px); border-bottom: 15px solid #222; }
   .gate.closed { transform: translateY(0); }
-  .monster-eyes { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 50px; display: none; z-index: 5; filter: blur(3px); opacity: 0; }
-  .eye-visible { opacity: 1 !important; }
+  .light-flash { position: absolute; inset: 0; background: rgba(255,255,255,0.2); visibility: hidden; z-index: 2; box-shadow: inset 0 0 150px #fff; }
+  .monster-eyes { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 5; }
   .eye { width: 25px; height: 25px; background: red; border-radius: 50%; box-shadow: 0 0 25px red; display: inline-block; margin: 0 15px; }
-  #power-out-eyes { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 18500; }
-  .white-eye { width: 20px; height: 20px; background: white; border-radius: 50%; box-shadow: 0 0 15px white; display: inline-block; margin: 0 20px; animation: eyeBlink 0.3s infinite; }
-  @keyframes eyeBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  #mask-overlay { position: absolute; inset: 0; z-index: 9000; pointer-events: none; background: rgba(45, 27, 24, 0.9); transform: translateY(-110%); transition: transform 0.3s; }
+  #mask-overlay.active { transform: translateY(0); }
+  #mask-btn { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80%; height: 60px; border: 2px solid red; background: rgba(0,0,0,0.8); color: red; font-weight: bold; cursor: pointer; z-index: 9500; display: none; justify-content: center; align-items: center; }
+
   #red-jumpscare { position: absolute; inset: 0; background: #000; z-index: 19000; display: none; overflow: hidden; }
   .scare-eyes { position: absolute; bottom: -300px; left: 50%; transform: translateX(-50%); width: 700px; height: 300px; display: flex; justify-content: space-around; animation: fastJump 0.2s forwards; }
   .scare-eye { width: 280px; height: 280px; background: red; border-radius: 50%; box-shadow: 0 0 120px red; }
-  @keyframes fastJump { 0% { bottom: -300px; scale: 0.5; } 100% { bottom: 50px; scale: 2.2; } }
-  #mask-overlay { position: absolute; inset: 0; z-index: 9000; pointer-events: none; background: radial-gradient(circle at 35% 45%, transparent 60px, #2d1b18 70px), radial-gradient(circle at 65% 45%, transparent 60px, #2d1b18 70px); background-color: #2d1b18; transform: translateY(-110%); transition: transform 0.3s; }
-  #mask-overlay.active { transform: translateY(0); }
-  #mask-btn { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80%; height: 60px; border: 2px solid red; background: rgba(0,0,0,0.8); color: red; cursor: pointer; z-index: 9500; display: none; justify-content: center; align-items: center; }
-  .game-ui { position: absolute; top: 10px; width: 100%; padding: 0 20px; z-index: 9100; pointer-events: none; }
-  .view { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; }
-  .active-view { display: block !important; }
-  .side-controls { position: absolute; bottom: 50px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 150; }
-  .c-btn { width: 100px; height: 50px; background: #111; color: #555; border: 2px solid #222; cursor: pointer; }
-  .c-btn.on-door { background: #600 !important; color: #f00 !important; }
-  .c-btn.on-light { background: #660 !important; color: #ff0 !important; }
-  .light-flash { position: absolute; inset: 0; background: rgba(255,255,255,0.2); visibility: hidden; z-index: 2; }
+  @keyframes fastJump { to { bottom: 50px; transform: translateX(-50%) scale(2.2); } }
+  #win-screen { background: black; z-index: 20000; display: none; justify-content: center; align-items: center; flex-direction: column; }
+  .eight-bit-text { font-size: 80px; font-weight: bold; }
 </style>
 </head>
 <body>
 
 <div id="game-window">
-  <div id="dark-overlay"></div>
-  <div id="power-out-overlay"></div>
-  <div id="power-out-eyes"><div class="white-eye"></div><div class="white-eye"></div></div>
-  <div id="mendo-scare"><div class="mendo-jump"><div style="width:120px;height:120px;background:gold;border-radius:50%;box-shadow:0 0 60px gold;"></div><div style="width:120px;height:120px;background:gold;border-radius:50%;box-shadow:0 0 60px gold;"></div></div></div>
-  <div id="win-screen" class="screen"><div class="eight-bit-text">7:00</div><button id="win-next-btn" style="display:none" onclick="location.reload()">→</button></div>
-  <div id="hallucination"></div>
-  <div id="extra-menu" class="screen">
-    <div class="extra-header"><span>ЭКСТРА</span><div class="close-extra" onclick="toggleExtra(false)">Закрыть</div></div>
-    <div class="night-grid">
-      <div class="grid-row"><div class="night-slot" onclick="goLoad(1)">Ночь 1</div><div class="night-slot" onclick="checkNight(2)">Ночь 2</div><div class="night-slot" onclick="showErr()">Ночь 3</div></div>
-    </div>
-  </div>
-  <div id="error-popup"><div class="close-popup" onclick="this.parentElement.style.display='none'">✖</div><br><span>СКОРО ВЫЙДЕТ</span></div>
-  <div id="red-jumpscare"><div class="scare-eyes"><div class="scare-eye"></div><div class="scare-eye"></div></div></div>
-  
   <div id="main-menu" class="screen">
     <div class="menu-content">
       <div class="title-text">STV NIGHTS</div>
       <button class="menu-btn" onclick="goLoad(1)">Start</button>
       <button id="btn-n2" class="menu-btn hidden" style="color: gold;" onclick="goLoad(2)">Night 2</button>
-      <button id="btn-extra" class="menu-btn hidden" style="color: #0f0;" onclick="toggleExtra(true)">Extra</button>
       <button class="menu-btn" onclick="location.reload()">Leave</button>
+      <div style="font-size:10px; opacity:0.3; margin-top:20px;">v 1.3 GOLD - JOY</div>
     </div>
     <div class="freddy-bg"></div>
   </div>
 
-  <div id="loading-screen" class="screen hidden" style="background:black; justify-content:center; align-items:center;"><div id="load-label" style="font-size:60px;">Ночь 1</div></div>
+  <div id="loading-screen" class="screen hidden" style="background:black; justify-content:center; align-items:center;">
+    <div id="load-label" style="font-size:60px;">Ночь 1</div>
+  </div>
 
   <div id="night-screen" class="screen hidden">
-    <div class="game-ui"><div>Аккумулятор — <span id="p-val">100</span>%</div><div id="night-label">Ночь 1<br><span id="t-val">12 am</span></div></div>
-    <div id="dust-box" class="dust-container"></div>
-    <div id="view-center" class="view active-view room">
-        <div class="lamp-fixture" id="main-bulb"><div class="bulb"></div></div>
-        <div id="mendo-eyes" style="position:absolute; top:40%; left:50%; transform:translateX(-50%); display:none;"><div style="width:30px;height:30px;background:gold;border-radius:50%;display:inline-block;margin:0 20px;"></div><div style="width:30px;height:30px;background:gold;border-radius:50%;display:inline-block;margin:0 20px;"></div></div>
-        <div onclick="setView('left')" style="position:absolute; left:0; width:30%; height:100%; cursor:pointer;"></div>
-        <div onclick="setView('right')" style="position:absolute; right:0; width:30%; height:100%; cursor:pointer;"></div>
-        <div id="mask-btn" onclick="toggleMask()">▲ MASK ▲</div>
+    <div id="hallucination"></div>
+    <div class="game-ui">
+      <div>Аккумулятор — <span id="p-val">100</span>%</div>
+      <div id="night-label">Ночь 1<br><span id="t-val">12 am</span></div>
     </div>
-    <div id="view-left" class="view room"><div onclick="setView('center')" style="position:absolute; inset:0;"></div><div id="gate-l" class="gate"></div><div id="light-l" class="light-flash"></div><div id="monster-l" class="monster-eyes"><div class="eye"></div><div class="eye"></div></div><div class="side-controls"><button id="b-door-l" class="c-btn" onclick="doAction('lDoor')">door</button><button id="b-light-l" class="c-btn" onclick="doAction('lLight')">light</button></div></div>
-    <div id="view-right" class="view room"><div onclick="setView('center')" style="position:absolute; inset:0;"></div><div id="gate-r" class="gate"></div><div id="light-r" class="light-flash"></div><div id="monster-r" class="monster-eyes"><div class="eye"></div><div class="eye"></div></div><div class="side-controls"><button id="b-door-r" class="c-btn" onclick="doAction('rDoor')">door</button><button id="b-light-r" class="c-btn" onclick="doAction('rLight')">light</button></div></div>
+
+    <div id="dust-box" class="dust-container"></div>
+
+    <div id="view-center" class="view active-view room" style="width:100%; height:100%; position:absolute;">
+      <div class="lamp-fixture"><div class="chain"></div><div class="bulb"></div></div>
+      <div id="mendo-eyes" style="position:absolute; top:40%; left:50%; transform:translateX(-50%); display:none; z-index:400;">
+          <div style="width:30px; height:30px; background:gold; border-radius:50%; box-shadow:0 0 30px gold; display:inline-block; margin:0 20px;"></div>
+          <div style="width:30px; height:30px; background:gold; border-radius:50%; box-shadow:0 0 30px gold; display:inline-block; margin:0 20px;"></div>
+      </div>
+      <div onclick="setView('left')" style="position:absolute; left:0; width:30%; height:100%; cursor:pointer; z-index:100;"></div>
+      <div onclick="setView('right')" style="position:absolute; right:0; width:30%; height:100%; cursor:pointer; z-index:100;"></div>
+      <div id="mask-btn" onclick="toggleMask()">▲ MASK ▲</div>
+    </div>
+
+    <div id="view-left" class="view hidden room" style="width:100%; height:100%; position:absolute;">
+      <div onclick="setView('center')" style="position:absolute; inset:0; z-index:1;"></div>
+      <div id="gate-l" class="gate"></div>
+      <div id="light-l" class="light-flash"></div>
+      <div id="monster-l" class="monster-eyes"><div class="eye"></div><div class="eye"></div></div>
+      <div class="side-controls">
+        <button id="b-door-l" class="c-btn" onclick="event.stopPropagation(); doAction('lDoor')">door</button>
+        <button id="b-light-l" class="c-btn" onclick="event.stopPropagation(); doAction('lLight')">light</button>
+      </div>
+    </div>
+
+    <div id="view-right" class="view hidden room" style="width:100%; height:100%; position:absolute;">
+      <div onclick="setView('center')" style="position:absolute; inset:0; z-index:1;"></div>
+      <div id="gate-r" class="gate"></div>
+      <div id="light-r" class="light-flash"></div>
+      <div id="monster-r" class="monster-eyes"><div class="eye"></div><div class="eye"></div></div>
+      <div class="side-controls">
+        <button id="b-door-r" class="c-btn" onclick="event.stopPropagation(); doAction('rDoor')">door</button>
+        <button id="b-light-r" class="c-btn" onclick="event.stopPropagation(); doAction('rLight')">light</button>
+      </div>
+    </div>
+
     <div id="mask-overlay"></div>
   </div>
+
+  <div id="red-jumpscare"><div class="scare-eyes"><div class="scare-eye"></div><div class="scare-eye"></div></div></div>
+  <div id="win-screen"><div class="eight-bit-text">6:00</div></div>
 </div>
 
 <script>
   let power = 100, hour = 0, curNight = 1, isDead = false, isWin = false;
   let monsterSide = null, mendoActive = false, maskOn = false;
   let s = { lDoor: false, rDoor: false, lLight: false, rLight: false };
-  const hrs = ["12 am", "1 am", "2 am", "3 am", "4 am", "5 am", "6 am", "7 am"];
-  let AC, fanGain, intervals = [];
+  let intervals = [], AC, fan;
+
+  // Создаем пылинки
+  for(let i=0; i<30; i++) {
+    let d = document.createElement('div'); d.className = 'dust';
+    d.style.left = Math.random()*100+'%'; d.style.top = Math.random()*100+'%';
+    d.style.width = d.style.height = Math.random()*3+2+'px';
+    document.getElementById('dust-box').appendChild(d);
+  }
 
   if(localStorage.getItem('night1Win')) document.getElementById('btn-n2').classList.remove('hidden');
-  if(localStorage.getItem('night2Win')) document.getElementById('btn-extra').classList.remove('hidden');
 
-  function toggleExtra(show) { document.getElementById('extra-menu').style.display = show ? 'flex' : 'none'; }
-  function showErr() { document.getElementById('error-popup').style.display = 'block'; }
-  function checkNight(n) { if(localStorage.getItem('night'+(n-1)+'Win')) goLoad(n); else showErr(); }
+  function initSound() {
+    try {
+      AC = new (window.AudioContext || window.webkitAudioContext)();
+      fan = AC.createGain(); let osc = AC.createOscillator();
+      osc.type = 'sawtooth'; osc.frequency.value = 40; fan.gain.value = 0.02;
+      osc.connect(fan); fan.connect(AC.destination); osc.start();
+    } catch(e) {}
+  }
 
   function goLoad(n) {
-    curNight = n; isWin = false; isDead = false; power = 100; hour = 0;
+    curNight = n; initSound();
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('loading-screen').classList.remove('hidden');
     document.getElementById('load-label').innerText = "Ночь " + n;
-    if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
-    fanGain = AC.createGain(); fanGain.gain.value = 0.02;
-    let osc = AC.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = 35;
-    osc.connect(fanGain); fanGain.connect(AC.destination); osc.start();
     setTimeout(() => {
       document.getElementById('loading-screen').classList.add('hidden');
       document.getElementById('night-screen').classList.remove('hidden');
-      startWork();
+      document.getElementById('mask-btn').style.display = (n >= 2) ? 'flex' : 'none';
+      start();
     }, 2000);
   }
 
   function setView(v) {
-    if(isDead || power <= 0) return;
-    document.querySelectorAll('.view').forEach(el => el.classList.remove('active-view'));
-    document.getElementById('view-' + v).classList.add('active-view');
-    document.getElementById('mask-btn').style.display = (v === 'center' && curNight === 2) ? 'flex' : 'none';
+    if(isDead || isWin || maskOn || power <= 0) return;
+    document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
+    document.getElementById('view-' + v).classList.remove('hidden');
     s.lLight = s.rLight = false; upd();
   }
 
+  function doAction(t) {
+    if(isDead || isWin || maskOn || power <= 0) return;
+    if(t.includes('Light')) { s.lLight = (t==='lLight'?!s.lLight:false); s.rLight = (t==='rLight'?!s.rLight:false); }
+    else { s[t] = !s[t]; }
+    upd();
+  }
+
   function toggleMask() {
-    if(isDead || power <= 0) return;
+    if(isDead || isWin || power <= 0) return;
     maskOn = !maskOn;
     document.getElementById('mask-overlay').classList.toggle('active', maskOn);
     if(maskOn && mendoActive) { mendoActive = false; document.getElementById('mendo-eyes').style.display = 'none'; }
   }
 
-  function doAction(t) {
-    if(isDead || power <= 0) return;
-    if(t.includes('Light')) { let p = s[t]; s.lLight = s.rLight = false; s[t] = !p; } else s[t] = !s[t];
-    upd();
+  function triggerJoy() {
+    const h = document.getElementById('hallucination');
+    h.innerHTML = ''; h.style.display = 'block';
+    for(let i=0; i<10; i++) {
+        let j = document.createElement('div'); j.className = 'joy-unit';
+        j.innerText = 'РАДОСТЬ'; j.style.left = Math.random()*70+'%'; j.style.top = Math.random()*80+'%';
+        h.appendChild(j);
+    }
+    setTimeout(() => h.style.display = 'none', 300);
   }
 
   function upd() {
@@ -167,59 +204,65 @@
     document.getElementById('gate-r').classList.toggle('closed', s.rDoor);
     document.getElementById('light-l').style.visibility = s.lLight ? 'visible' : 'hidden';
     document.getElementById('light-r').style.visibility = s.rLight ? 'visible' : 'hidden';
-    document.getElementById('monster-l').classList.toggle('eye-visible', s.lLight && monsterSide === 'l');
-    document.getElementById('monster-r').classList.toggle('eye-visible', s.rLight && monsterSide === 'r');
+    document.getElementById('monster-l').style.display = (s.lLight && monsterSide === 'l') ? 'block' : 'none';
+    document.getElementById('monster-r').style.display = (s.rLight && monsterSide === 'r') ? 'block' : 'none';
+    document.getElementById('b-door-l').className = 'c-btn' + (s.lDoor?' on-door':'');
+    document.getElementById('b-door-r').className = 'c-btn' + (s.rDoor?' on-door':'');
+    document.getElementById('b-light-l').className = 'c-btn' + (s.lLight?' on-light':'');
+    document.getElementById('b-light-r').className = 'c-btn' + (s.rLight?' on-light':'');
   }
 
-  function startWork() {
+  function start() {
     intervals.push(setInterval(() => {
       if(isDead || isWin) return;
-      power -= (0.2 + (s.lDoor?0.3:0) + (s.rDoor?0.3:0));
+      power -= (0.15 + (s.lDoor?0.3:0) + (s.rDoor?0.3:0));
       document.getElementById('p-val').innerText = Math.max(0, Math.floor(power));
-      if(power <= 0) triggerPowerOut();
+      if(power <= 0) die();
+      if(Math.random() < 0.01) triggerJoy();
     }, 1000));
+
     intervals.push(setInterval(() => {
-        if(isDead || isWin || monsterSide || power <= 0) return;
-        if(Math.random() < 0.3) {
-            monsterSide = Math.random() > 0.5 ? 'l' : 'r';
-            setTimeout(() => { if(monsterSide && !s[monsterSide+'Door']) triggerDeath(); else monsterSide = null; }, 4000);
-        }
+      if(isDead || isWin || monsterSide || power <= 0) return;
+      if(Math.random() < 0.35) {
+        monsterSide = Math.random() > 0.5 ? 'l' : 'r';
+        setTimeout(() => {
+          if(!isWin && !isDead && monsterSide && !s[monsterSide + 'Door']) die();
+          else { monsterSide = null; upd(); }
+        }, 3800);
+      }
     }, 7000));
+
+    if(curNight >= 2) {
+      intervals.push(setInterval(() => {
+        if(isDead || isWin || mendoActive || maskOn) return;
+        if(Math.random() < 0.2) {
+          mendoActive = true; document.getElementById('mendo-eyes').style.display = 'block';
+          setTimeout(() => { if(mendoActive && !maskOn) die(); }, 3000);
+        }
+      }, 8500));
+    }
+
     intervals.push(setInterval(() => {
-      if(isDead || isWin || power <= 0) return;
-      hour++; if(hour < hrs.length) document.getElementById('t-val').innerText = hrs[hour];
-      if(hour === 7) triggerWin();
+      if(isDead || isWin) return;
+      hour++;
+      if(hour <= 6) document.getElementById('t-val').innerText = hour + " am";
+      if(hour === 6) win();
     }, 45000));
   }
 
-  function triggerPowerOut() {
-    isDead = true; stopAllIntervals();
-    document.getElementById('main-bulb').style.display = 'none';
-    document.getElementById('power-out-overlay').style.display = 'block';
-    setTimeout(() => { document.getElementById('power-out-eyes').style.display = 'block'; setTimeout(triggerDeath, 2000); }, 3000);
-  }
-
-  function triggerDeath() {
-    if(isWin) return; isDead = true; stopAllIntervals();
-    playScream(); document.getElementById('red-jumpscare').style.display = 'block';
+  function die() {
+    isDead = true; intervals.forEach(clearInterval);
+    if(fan) fan.gain.value = 0;
+    document.getElementById('red-jumpscare').style.display = 'block';
     setTimeout(() => location.reload(), 2000);
   }
 
-  function triggerWin() {
-    isWin = true; stopAllIntervals();
-    localStorage.setItem('night'+curNight+'Win', 'true');
+  function win() {
+    isWin = true; intervals.forEach(clearInterval);
+    localStorage.setItem('night' + curNight + 'Win', 'true');
     document.getElementById('win-screen').style.display = 'flex';
-    setTimeout(() => document.getElementById('win-next-btn').style.display = 'block', 3000);
+    setTimeout(() => location.reload(), 5000);
   }
-
-  function playScream() {
-    let g = AC.createGain(); g.gain.value = 1; g.connect(AC.destination);
-    let o = AC.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 150;
-    o.connect(g); o.start(); o.stop(AC.currentTime + 1);
-  }
-
-  function stopAllIntervals() { intervals.forEach(clearInterval); if(fanGain) fanGain.gain.value = 0; }
 </script>
 </body>
-  </html>
-
+</html>
